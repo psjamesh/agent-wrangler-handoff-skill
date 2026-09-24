@@ -1,6 +1,6 @@
 ---
 name: handoff
-description: Use when this session should hand its work to a brand-new successor session it spawns itself — it is broken or deficient in a way the CLI cannot fix, is near its context ceiling, or the work should move to a different agent provider (Claude <-> Codex) or model. Invoked as /handoff with optional agent, model, auto_compact_tokens and effort.
+description: Use when this session should hand its work to a brand-new successor session it spawns itself — it is broken or deficient in a way the CLI cannot fix, is near its context ceiling, or the work should move to a different agent provider (Claude <-> Codex) or model. Takes optional agent, model, auto_compact_tokens and effort.
 ---
 
 # Handoff
@@ -103,6 +103,10 @@ sandbox. The file is the successor's source of truth. It contains:
   re-set them.
 - **Dependents** from step 3: id, label and relation (nested child, spawned by you, your
   parent, your spawner).
+- **Who you report to and what you owe them.** Name the session you send results to
+  (usually your `spawnedBy`, sometimes your `parent`) and what you had promised to report.
+  The successor's own `AW_SPAWNER_SESSION_ID` will be *you*, so it has no other way to
+  find out where your reports were going.
 - **Mail** from step 1 that still matters.
 - **Binding project conventions that won't transfer.** If this repo has rules you are
   following that live in agent-specific files (CLAUDE.md, AGENTS.md, a user-level
@@ -164,10 +168,14 @@ Before resuming the work itself, do these steps in order:
 2. If you are an orchestrator or tracked worker of a workflow, stop and tell the human; this handoff is not supported for workflow sessions.
 3. Re-attach the predecessor's session links to yourself: call get_links({scope: "session"}) to see what you already have, then set_links({scope: "session", links: [...]}) with the union of those and the links listed in the handoff file (type, key, url only). Task-scoped links need nothing.
 4. Call list_sessions() and confirm the dependents listed in the handoff file: sessions whose parentSession or spawnedBy is <predecessor full id>, plus the predecessor's own parent and spawner if the file names them. Exclude yourself: your own spawnedBy is the predecessor, which does not make you a dependent.
-5. send_message each dependent once. Say plainly that you have replaced <predecessor full id>, and that from now on it should report to you (<use your own session id from get_session_info>), not to AW_SPAWNER_SESSION_ID, which was fixed when it launched and now points at the archived predecessor.
+5. send_message each dependent once, in one of two forms:
+   - Downward (the predecessor's nested children and the sessions it spawned): say plainly that you have replaced <predecessor full id>, and that from now on it should report to you (<use your own session id from get_session_info>), not to AW_SPAWNER_SESSION_ID, which was fixed when it launched and now points at the archived predecessor.
+   - Upward (the predecessor's own parent and spawner): say that you have replaced <predecessor full id>, and that anything meant for it should now go to you.
 6. Only after that, call archive_session({target: "<predecessor full id>", archive_children: false}). archive_children must be false. The default (true) would also archive the predecessor's nested children, which are still working and were deliberately left where they are.
 7. If your card title is still the raw intent text, call rename_session on your own session id with a short title.
 8. If you run a different agent provider than the predecessor (<predecessor agent>), you have not inherited its agent-specific project instructions. Treat the conventions restated in the handoff file as binding. If something binding seems missing or ambiguous, ask the human rather than guess.
+
+Your own AW_SPAWNER_SESSION_ID is the predecessor, which you are about to archive. Anything the predecessor owed upward goes to <the session the handoff file says the predecessor reports to, or "nobody" if none>. Never send it to your env var.
 
 Then continue the work from the handoff file's next steps.
 ```
@@ -179,6 +187,10 @@ Then continue the work from the handoff file's next steps.
   being up. Everything that needs a healthy session happens on the successor's side.
 - **Notify, then archive.** A dependent told "report to X" before the predecessor is
   archived never has a window where its reports go nowhere. The reverse order leaves one.
+- **The successor's own spawner id is stale on arrival.** It was launched by the
+  predecessor, so its `AW_SPAWNER_SESSION_ID` names a session it archives a few steps
+  later. That is why the handoff file records who the predecessor reports to, and why the
+  intent names that session explicitly.
 - **No reparenting.** Nested children stay nested under the archived predecessor. This
   skill deliberately doesn't call `attach_session` or `detach_session`: they aren't on an
   unattended session's launch allow-list, and the mailbox redirect in step 5 is what
