@@ -61,7 +61,7 @@ so they carry over with no action.
 
 ### 3. Find your dependents
 
-- `get_session_info()`: note your own `sessionId`, `parent`, `spawnedBy` and
+- `get_session_info()`: note your own `sessionId`, `label`, `parent`, `spawnedBy` and
   `autoCompactTokens`.
 - `list_sessions()`: collect the rows where `parentSession` is your id (nested children)
   and the rows where `spawnedBy` is your id (sessions you launched without nesting). One
@@ -134,11 +134,12 @@ sandbox. The file is the successor's source of truth. It contains:
   skill". The successor may be a different provider and cannot be assumed to have this
   skill.
 
-### 7. Give it a readable title
+### 7. Give it your title
 
-`rename_session({ target: <successor id>, name: <short title> })`. Use your own label,
-or a short description of the work, plus ` (handoff)`. Without this, the card's title is
-derived from the intent.
+`rename_session({ target: <successor id>, name: <your own label from step 3> })`. Use
+your label exactly as it is, with no suffix such as "(handoff)". The successor replaces
+you, and once you're archived it is the only card for this work, so it should look like
+the card it took over from. Without this, the card's title is derived from the intent.
 
 If `rename_session` isn't available to you or fails (a session launched before it was
 added won't have it on its allow-list), carry on. The successor's instructions include
@@ -172,7 +173,7 @@ Before resuming the work itself, do these steps in order:
    - Downward (the predecessor's nested children and the sessions it spawned): say plainly that you have replaced <predecessor full id>, and that from now on it should report to you (<use your own session id from get_session_info>), not to AW_SPAWNER_SESSION_ID, which was fixed when it launched and now points at the archived predecessor.
    - Upward (the predecessor's own parent and spawner): say that you have replaced <predecessor full id>, and that anything meant for it should now go to you.
 6. Only after that, call archive_session({target: "<predecessor full id>", archive_children: false}). archive_children must be false. The default (true) would also archive the predecessor's nested children, which are still working and were deliberately left where they are.
-7. If your card title is still the raw intent text, call rename_session on your own session id with a short title.
+7. If your card title is not "<predecessor label>", call rename_session on your own session id with exactly that title. You replace the predecessor, so you keep its name, with no suffix.
 8. If you run a different agent provider than the predecessor (<predecessor agent>), you have not inherited its agent-specific project instructions. Treat the conventions restated in the handoff file as binding. If something binding seems missing or ambiguous, ask the human rather than guess.
 
 Your own AW_SPAWNER_SESSION_ID is the predecessor, which you are about to archive. Anything the predecessor owed upward goes to <the session the handoff file says the predecessor reports to, or "nobody" if none>. Never send it to your env var.
