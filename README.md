@@ -6,7 +6,7 @@ A session that is broken in a way the CLI can't fix, is near its context ceiling
 
 1. writes a handoff file (why, what's done, current state, git status, session links, dependents, and any project conventions that won't carry across providers)
 2. spawns a successor in the same working tree, with the requested `agent`, `model`, `auto_compact_tokens` and `effort`
-3. renames the successor's card and stops
+3. gives the successor its own card title, unchanged, and stops
 
 The successor re-attaches the session links, tells every dependent session (nested children, sessions it spawned, and its parent and spawner) to report to the successor from now on, and then archives its predecessor with `archive_children: false`.
 
