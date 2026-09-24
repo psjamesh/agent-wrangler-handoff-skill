@@ -13,7 +13,7 @@ notifying dependents, archiving you) is done by the successor once it is healthy
 
 ## Arguments
 
-The human invokes `/handoff`, optionally with any of:
+The human invokes the skill, optionally with any of the arguments below. In Claude Code it's `/handoff:handoff`, because an extension-shipped skill loads as a one-skill plugin named after its directory. In Codex it's `handoff` from the skill catalog.
 
 - **`agent`** — `claude` or `codex`. **This is a first-class reason to hand off, not an
   afterthought**: moving the work to the other provider is one of the main uses of this

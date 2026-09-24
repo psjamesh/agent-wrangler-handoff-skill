@@ -2,7 +2,7 @@
 
 An [Agent Wrangler](https://github.com/PortSwigger/agent-wrangler) extension that ships one skill, `handoff`.
 
-A session that is broken in a way the CLI can't fix, is near its context ceiling, or should move to a different agent provider (Claude ↔ Codex) or model runs `/handoff`. The session then:
+A session that is broken in a way the CLI can't fix, is near its context ceiling, or should move to a different agent provider (Claude ↔ Codex) or model invokes the skill. In Claude Code that's `/handoff:handoff`, because an extension-shipped skill loads as a one-skill plugin named after its directory. The session then:
 
 1. writes a handoff file (why, what's done, current state, git status, session links, dependents, and any project conventions that won't carry across providers)
 2. spawns a successor in the same working tree, with the requested `agent`, `model`, `auto_compact_tokens` and `effort`
