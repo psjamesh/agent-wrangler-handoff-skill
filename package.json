@@ -1,0 +1,20 @@
+{
+  "name": "agent-wrangler-handoff-skill",
+  "version": "0.1.0",
+  "description": "Agent Wrangler extension shipping the `handoff` skill: a session hands its work to a fresh successor session it spawns itself.",
+  "type": "module",
+  "main": "index.js",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/psjamesh/agent-wrangler-handoff-skill.git"
+  },
+  "wranglerExtension": {
+    "id": "handoff",
+    "label": "Handoff",
+    "description": "Adds the `handoff` skill: a session that is stuck, needs a different agent provider, or is out of context hands its work to a fresh successor session it spawns itself.",
+    "author": "psjamesh",
+    "homepage": "https://github.com/psjamesh/agent-wrangler-handoff-skill",
+    "requires": []
+  }
+}
