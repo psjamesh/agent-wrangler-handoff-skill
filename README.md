@@ -8,7 +8,7 @@ A session that is broken in a way the CLI can't fix, is near its context ceiling
 2. spawns a successor in the same working tree, with the requested `agent`, `model`, `auto_compact_tokens` and `effort`
 3. gives the successor its own card title, unchanged, and stops
 
-The successor re-attaches the session links, tells every dependent session (nested children, sessions it spawned, and its parent and spawner) to report to the successor from now on, and then archives its predecessor with `archive_children: false`.
+The successor re-attaches the session links, tells every dependent session (nested children, sessions it spawned, and its parent and spawner) to report to the successor from now on, moves the nested children under its own card where it can, and then archives its predecessor with `archive_children: false`.
 
 See [`skills/handoff/SKILL.md`](skills/handoff/SKILL.md) for the full procedure.
 
