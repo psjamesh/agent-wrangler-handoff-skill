@@ -172,9 +172,10 @@ Before resuming the work itself, do these steps in order:
 5. send_message each dependent once, in one of two forms:
    - Downward (the predecessor's nested children and the sessions it spawned): say plainly that you have replaced <predecessor full id>, and that from now on it should report to you (<use your own session id from get_session_info>), not to AW_SPAWNER_SESSION_ID, which was fixed when it launched and now points at the archived predecessor.
    - Upward (the predecessor's own parent and spawner): say that you have replaced <predecessor full id>, and that anything meant for it should now go to you.
-6. Only after that, call archive_session({target: "<predecessor full id>", archive_children: false}). archive_children must be false. The default (true) would also archive the predecessor's nested children, which are still working and were deliberately left where they are.
-7. If your card title is not "<predecessor label>", call rename_session on your own session id with exactly that title. You replace the predecessor, so you keep its name, with no suffix.
-8. If you run a different agent provider than the predecessor (<predecessor agent>), you have not inherited its agent-specific project instructions. Treat the conventions restated in the handoff file as binding. If something binding seems missing or ambiguous, ask the human rather than guess.
+6. Reparent the predecessor's nested children (rows whose parentSession is <predecessor full id>) onto yourself: call attach_session({session_id: <child id>, parent_session_id: <your own session id>}) for each one. This is best-effort board tidying. attach_session refuses a child on a different task, and may refuse for other reasons such as permissions; if it does, skip that child and carry on. The message from step 5 already redirects it.
+7. Only after that, call archive_session({target: "<predecessor full id>", archive_children: false}). archive_children must be false. The default (true) would also archive any nested children still under the predecessor, which are still working.
+8. If your card title is not "<predecessor label>", call rename_session on your own session id with exactly that title. You replace the predecessor, so you keep its name, with no suffix.
+9. If you run a different agent provider than the predecessor (<predecessor agent>), you have not inherited its agent-specific project instructions. Treat the conventions restated in the handoff file as binding. If something binding seems missing or ambiguous, ask the human rather than guess.
 
 Your own AW_SPAWNER_SESSION_ID is the predecessor, which you are about to archive. Anything the predecessor owed upward goes to <the session the handoff file says the predecessor reports to, or "nobody" if none>. Never send it to your env var.
 
@@ -192,10 +193,13 @@ Then continue the work from the handoff file's next steps.
   predecessor, so its `AW_SPAWNER_SESSION_ID` names a session it archives a few steps
   later. That is why the handoff file records who the predecessor reports to, and why the
   intent names that session explicitly.
-- **No reparenting.** Nested children stay nested under the archived predecessor. This
-  skill deliberately doesn't call `attach_session` or `detach_session`: they aren't on an
-  unattended session's launch allow-list, and the mailbox redirect in step 5 is what
-  actually matters to a running child. Hence `archive_children: false`.
+- **Reparent as best effort; the mail is the guarantee.** The successor moves the
+  predecessor's nested children under its own card with `attach_session`, so they don't
+  hang under an archived card. That only works for children on the same task, since
+  `attach_session` refuses a cross-task move, so a refused attach is skipped, not fatal.
+  What a running child actually depends on is the mailbox redirect in step 5, which every
+  dependent gets either way. `archive_children` stays `false` so that any child left under
+  the predecessor survives the archive.
 - **A file, not a long intent.** The file can be as long as the state demands and read
   in full. The intent stays short enough to be a sane launch prompt, with a condensed
   fallback in case the path can't be read.
